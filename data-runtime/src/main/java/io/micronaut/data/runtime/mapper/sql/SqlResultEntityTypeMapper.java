@@ -400,7 +400,7 @@ public final class SqlResultEntityTypeMapper<RS, R> implements SqlTypeMapper<RS,
                                 entry.getValue().add(associated);
                             }
                         }
-                        currentId = nextId(identity, rs);
+                        currentId = nextId(identity, prefix, isEmbedded, hasPrefix, rs);
                     }
 
                     if (currentId != null) {
@@ -436,14 +436,14 @@ public final class SqlResultEntityTypeMapper<RS, R> implements SqlTypeMapper<RS,
         return columnName;
     }
 
-    /**
-     * Resolve the ID of the next row.
-     * @param identity The identity
-     * @param resultSet The result set
-     * @return The ID
-     */
-    Object nextId(@NonNull RuntimePersistentProperty<R> identity, @NonNull RS resultSet) {
-        return resultReader.readNextDynamic(resultSet, identity.getPersistedName(), identity.getDataType());
+    private Object nextId(RuntimePersistentProperty<R> identity, String prefix, boolean isEmbedded, boolean hasPrefix, RS resultSet) {
+        String identityColumnName = resolveColumnName(
+                identity,
+                prefix,
+                isEmbedded,
+                hasPrefix
+        );
+        return resultReader.readNextDynamic(resultSet, identityColumnName, identity.getDataType());
     }
 
     private Object convertAndSet(
